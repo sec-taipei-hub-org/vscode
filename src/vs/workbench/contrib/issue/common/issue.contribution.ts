@@ -15,9 +15,20 @@ import { IProductService } from '../../../../platform/product/common/productServ
 import { IWorkbenchContribution } from '../../../common/contributions.js';
 import { IssueReporterData, IWorkbenchIssueService } from './issue.js';
 
+/**
+ * Command ID for the action to open the issue reporter from the command palette.
+ */
 const OpenIssueReporterActionId = 'workbench.action.openIssueReporter';
+
+/**
+ * Command ID for the API endpoint to open the issue reporter.
+ */
 const OpenIssueReporterApiId = 'vscode.openIssueReporter';
 
+/**
+ * Command metadata for the issue reporter commands.
+ * Defines the description and parameters for both commands.
+ */
 const OpenIssueReporterCommandMetadata: ICommandMetadata = {
 	description: 'Open the issue reporter and optionally prefill part of the form.',
 	args: [
@@ -52,14 +63,48 @@ const OpenIssueReporterCommandMetadata: ICommandMetadata = {
 	]
 };
 
+/**
+ * Interface defining the structure of arguments that can be passed 
+ * when opening the issue reporter.
+ */
 interface OpenIssueReporterArgs {
+	/**
+	 * The ID of the extension to report an issue for.
+	 * When provided, the issue reporter will be pre-filled with this extension.
+	 */
 	readonly extensionId?: string;
+
+	/**
+	 * The title for the new issue.
+	 */
 	readonly issueTitle?: string;
+
+	/**
+	 * The body text for the new issue.
+	 */
 	readonly issueBody?: string;
+
+	/**
+	 * Additional extension data to include in the issue report.
+	 */
 	readonly extensionData?: string;
 }
 
+/**
+ * Workbench contribution that registers commands for opening the issue reporter.
+ * 
+ * This class handles:
+ * - Checking if feedback is enabled via telemetry settings
+ * - Registering commands to open the issue reporter through command palette and UI
+ * - Adding menu items for the issue reporter in appropriate locations
+ */
 export class BaseIssueContribution extends Disposable implements IWorkbenchContribution {
+	/**
+	 * Creates a new instance of the BaseIssueContribution.
+	 *
+	 * @param productService Service providing product-specific configuration
+	 * @param configurationService Service providing access to user and workspace settings
+	 */
 	constructor(
 		@IProductService productService: IProductService,
 		@IConfigurationService configurationService: IConfigurationService,
