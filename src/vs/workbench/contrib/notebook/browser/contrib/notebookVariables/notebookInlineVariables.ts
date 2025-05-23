@@ -337,6 +337,20 @@ export class NotebookInlineVariablesController extends Disposable implements INo
 			: this.getBracedFunctionRanges(document.getValue());
 	}
 
+	/**
+	 * Identifies Python function and class definitions in the code and returns their ranges.
+	 * This method parses Python code to detect function/class declarations and their bodies
+	 * based on indentation patterns, following Python's whitespace-significant syntax.
+	 * 
+	 * The parser handles:
+	 * - Function and class declarations (including async functions)
+	 * - Determining function/class boundaries based on indentation
+	 * - Nested function/class definitions
+	 * - Functions/classes at the end of the document
+	 * 
+	 * @param code The Python code as a string
+	 * @returns Array of Range objects representing the locations of Python functions/classes
+	 */
 	private getPythonFunctionRanges(code: string): Range[] {
 		const functionRanges: Range[] = [];
 		const lines = code.split('\n');
@@ -496,6 +510,17 @@ export class NotebookInlineVariablesController extends Disposable implements INo
 		return commentRanges;
 	}
 
+	/**
+	 * Parses the document manually to identify commented ranges when more accurate tokenization is not available.
+	 * This is a fallback method that handles basic comment patterns in common languages.
+	 * 
+	 * Supports:
+	 * - Line comments (like // in JavaScript or # in Python)
+	 * - Block comments (like /* */ in JavaScript)
+	 *
+	 * @param document The text model to parse
+	 * @returns Array of Ranges that represent commented sections in the document
+	 */
 	private getCommentedRangesByManualParsing(document: ITextModel): Range[] {
 		const commentRanges: Range[] = [];
 		const lines = document.getValue().split('\n');

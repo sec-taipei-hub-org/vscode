@@ -54,12 +54,32 @@ import { Expression } from '../common/debugModel.js';
 import { IHostService } from '../../../services/host/browser/host.js';
 import { MarkdownString } from '../../../../base/common/htmlContent.js';
 
-const MAX_NUM_INLINE_VALUES = 100; // JS Global scope can have 700+ entries. We want to limit ourselves for perf reasons
-const MAX_INLINE_DECORATOR_LENGTH = 150; // Max string length of each inline decorator when debugging. If exceeded ... is added
-const MAX_TOKENIZATION_LINE_LEN = 500; // If line is too long, then inline values for the line are skipped
+/**
+ * Maximum number of inline debug values to display.
+ * JS Global scope can have 700+ entries, which would impact editor performance.
+ */
+const MAX_NUM_INLINE_VALUES = 100; 
 
+/**
+ * Maximum string length of each inline decorator when debugging.
+ * If exceeded, the text will be truncated and ... is added.
+ */
+const MAX_INLINE_DECORATOR_LENGTH = 150;
+
+/**
+ * Maximum line length for tokenization during inline value display.
+ * If a line is too long, inline values for that line are skipped for performance reasons.
+ */
+const MAX_TOKENIZATION_LINE_LEN = 500;
+
+/**
+ * Default debounce delay (in milliseconds) for updating inline values.
+ */
 const DEAFULT_INLINE_DEBOUNCE_DELAY = 200;
 
+/**
+ * Color for the debug inline value text.
+ */
 export const debugInlineForeground = registerColor('editor.inlineValuesForeground', {
 	dark: '#ffffff80',
 	light: '#00000080',
@@ -67,6 +87,9 @@ export const debugInlineForeground = registerColor('editor.inlineValuesForegroun
 	hcLight: '#00000080'
 }, nls.localize('editor.inlineValuesForeground', "Color for the debug inline value text."));
 
+/**
+ * Color for the debug inline value background.
+ */
 export const debugInlineBackground = registerColor('editor.inlineValuesBackground', '#ffc80033', nls.localize('editor.inlineValuesBackground', "Color for the debug inline value background."));
 
 class InlineSegment {
@@ -122,6 +145,20 @@ export function formatHoverContent(contentText: string): MarkdownString {
 	return new MarkdownString().appendCodeblock('', contentText);
 }
 
+/**
+ * Creates an inline value decoration for displaying debug values inline in the editor.
+ * 
+ * The decoration consists of two parts:
+ * 1. A spacer decoration that adds a non-breaking space before the value
+ * 2. The actual value decoration that displays the debug value
+ * 
+ * @param lineNumber The line number to add the decoration to
+ * @param contentText The content text to display inline
+ * @param classNamePrefix CSS class name prefix to apply to the decorations
+ * @param column The column where the decoration should be placed (defaults to end of line)
+ * @param viewportMaxCol Maximum column length before truncation occurs
+ * @returns An array of editor decorations to be applied to the model
+ */
 export function createInlineValueDecoration(lineNumber: number, contentText: string, classNamePrefix: string, column = Constants.MAX_SAFE_SMALL_INTEGER, viewportMaxCol: number = MAX_INLINE_DECORATOR_LENGTH): IModelDeltaDecoration[] {
 	const rawText = contentText; // store raw text for hover message
 
